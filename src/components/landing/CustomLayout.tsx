@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useStore, LayoutElement } from '../../contexts/StoreContext';
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,7 @@ const CustomLayout = () => {
   const [newElementContent, setNewElementContent] = useState('');
   const [newElementImage, setNewElementImage] = useState('');
   const [newElementSize, setNewElementSize] = useState<LayoutElement['size']>('medium');
-  const [newElementBackground, setNewElementBackground] = useState('');
+  const [newElementBackground, setNewElementBackground] = useState('bg-transparent');
   
   const products = getFeaturedProducts().slice(0, 4);
 
@@ -136,7 +135,7 @@ const CustomLayout = () => {
     setNewElementContent('');
     setNewElementImage('');
     setNewElementSize('medium');
-    setNewElementBackground('');
+    setNewElementBackground('bg-transparent');
   };
 
   const renderElement = (element: LayoutElement) => {
@@ -360,7 +359,7 @@ const CustomLayout = () => {
                   <SelectValue placeholder="Select background style" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="bg-transparent">None</SelectItem>
                   <SelectItem value="glass">Glass Effect</SelectItem>
                   <SelectItem value="bg-primary/10">Primary Light</SelectItem>
                   <SelectItem value="bg-secondary/10">Secondary Light</SelectItem>
