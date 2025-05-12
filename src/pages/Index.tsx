@@ -5,6 +5,7 @@ import HeroCentricLayout from '../components/landing/HeroCentricLayout';
 import ProductShowcaseLayout from '../components/landing/ProductShowcaseLayout';
 import MinimalistLayout from '../components/landing/MinimalistLayout';
 import StoryDrivenLayout from '../components/landing/StoryDrivenLayout';
+import CustomLayout from '../components/landing/CustomLayout';
 
 const Index = () => {
   const { landingLayout } = useStore();
@@ -20,6 +21,8 @@ const Index = () => {
         return <MinimalistLayout />;
       case 'story-driven':
         return <StoryDrivenLayout />;
+      case 'custom':
+        return <CustomLayout />;
       default:
         return <HeroCentricLayout />;
     }

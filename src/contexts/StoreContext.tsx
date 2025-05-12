@@ -2,8 +2,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'theme-light-frost' | 'theme-dark-nebula' | 'theme-twilight-glow';
-type LandingLayout = 'hero-centric' | 'product-showcase' | 'minimalist' | 'story-driven';
+type LandingLayout = 'hero-centric' | 'product-showcase' | 'minimalist' | 'story-driven' | 'custom';
 type ProductLayout = 'grid' | 'list' | 'masonry' | 'carousel';
+
+export interface LayoutElement {
+  id: string;
+  type: 'hero' | 'products' | 'banner' | 'text' | 'image' | 'spacer';
+  content?: string;
+  imageUrl?: string;
+  order: number;
+  size?: 'small' | 'medium' | 'large' | 'full';
+  background?: string;
+}
 
 interface StoreContextType {
   theme: Theme;
@@ -16,6 +26,10 @@ interface StoreContextType {
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   cartTotal: number;
+  customLayout: LayoutElement[];
+  updateCustomLayout: (layout: LayoutElement[]) => void;
+  isEditMode: boolean;
+  setIsEditMode: (isEditing: boolean) => void;
 }
 
 export interface Product {
@@ -36,6 +50,8 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
   const [productLayout, setProductLayoutState] = useState<ProductLayout>('grid');
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
+  const [customLayout, setCustomLayout] = useState<LayoutElement[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Load preferences from localStorage on initial render
   useEffect(() => {
@@ -43,11 +59,13 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     const savedLandingLayout = localStorage.getItem('landingLayout') as LandingLayout;
     const savedProductLayout = localStorage.getItem('productLayout') as ProductLayout;
     const savedCart = localStorage.getItem('cartItems');
+    const savedCustomLayout = localStorage.getItem('customLayout');
 
     if (savedTheme) setThemeState(savedTheme);
     if (savedLandingLayout) setLandingLayoutState(savedLandingLayout);
     if (savedProductLayout) setProductLayoutState(savedProductLayout);
     if (savedCart) setCartItems(JSON.parse(savedCart));
+    if (savedCustomLayout) setCustomLayout(JSON.parse(savedCustomLayout));
 
     // Apply the theme to the document
     document.body.className = savedTheme || theme;
@@ -77,6 +95,11 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('productLayout', newLayout);
   };
 
+  const updateCustomLayout = (newLayout: LayoutElement[]) => {
+    setCustomLayout(newLayout);
+    localStorage.setItem('customLayout', JSON.stringify(newLayout));
+  };
+
   const addToCart = (product: Product) => {
     setCartItems((prev) => [...prev, product]);
   };
@@ -97,7 +120,11 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
         cartItems,
         addToCart,
         removeFromCart,
-        cartTotal
+        cartTotal,
+        customLayout,
+        updateCustomLayout,
+        isEditMode,
+        setIsEditMode
       }}
     >
       {children}

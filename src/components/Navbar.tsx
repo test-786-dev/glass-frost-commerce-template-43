@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette } from 'lucide-react';
+import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus } from 'lucide-react';
 
 const Navbar = () => {
   const {
@@ -19,7 +19,8 @@ const Navbar = () => {
     setLandingLayout,
     productLayout,
     setProductLayout,
-    cartItems
+    cartItems,
+    isEditMode
   } = useStore();
 
   return (
@@ -65,6 +66,11 @@ const Navbar = () => {
               <DropdownMenuItem onClick={() => setLandingLayout('story-driven')}
                 className={landingLayout === 'story-driven' ? 'bg-primary/20' : ''}>
                 Story-Driven
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLandingLayout('custom')}
+                className={landingLayout === 'custom' ? 'bg-primary/20' : ''}>
+                <Plus size={16} className="mr-2" />
+                Custom Layout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -121,6 +127,13 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Show indicator when in edit mode */}
+          {isEditMode && landingLayout === 'custom' && (
+            <span className="bg-primary text-white px-2 py-1 rounded text-xs">
+              Edit Mode
+            </span>
+          )}
         </div>
 
         {/* Cart and Mobile Menu */}
