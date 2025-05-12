@@ -25,7 +25,8 @@ const Navbar = () => {
     isEditMode,
     savedCustomLayouts,
     setActiveCustomLayout,
-    deleteCustomLayout
+    deleteCustomLayout,
+    setIsEditMode
   } = useStore();
 
   return (
@@ -200,17 +201,17 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Show indicator when in edit mode - ONLY for product view page */}
-          {isEditMode && window.location.pathname === '/product-view' && (
-            <span className="bg-primary text-white px-2 py-1 rounded text-xs">
-              Edit Mode
-            </span>
-          )}
         </div>
 
         {/* Cart and Mobile Menu */}
         <div className="flex items-center space-x-4">
+          {/* Edit mode badge positioned on the right */}
+          {isEditMode && (
+            <span className="bg-primary text-white px-2 py-1 rounded text-xs">
+              Edit Mode
+            </span>
+          )}
+          
           <Link to="/checkout" className="relative">
             <ShoppingCart size={24} />
             {cartItems.length > 0 && (
