@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useStore, LayoutElement } from '../../contexts/StoreContext';
 import { Button } from "@/components/ui/button";
-import { Plus, Move, Trash, Save, Grid2x2, LayoutGrid, Carousel as CarouselIcon, Image, Type, Ban, SparkleIcon } from 'lucide-react';
+import { Plus, Move, Trash, Save, Grid2x2, LayoutGrid, Image, Type, Ban, SparkleIcon } from 'lucide-react';
 import { getFeaturedProducts } from '@/data/products';
 import ProductCard from '../ProductCard';
 import { toast } from '@/components/ui/use-toast';
