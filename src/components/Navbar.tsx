@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../contexts/StoreContext';
@@ -11,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate, Edit } from 'lucide-react';
+import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate, Edit, Trash } from 'lucide-react';
 
 const Navbar = () => {
   const {
