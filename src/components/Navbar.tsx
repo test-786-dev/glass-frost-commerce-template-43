@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../contexts/StoreContext';
@@ -91,17 +92,33 @@ const Navbar = () => {
                       }}
                     >
                       <span>{layout.name}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 p-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteCustomLayout(layout.id);
-                        }}
-                      >
-                        <Trash size={14} />
-                      </Button>
+                      <div className="flex items-center">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 p-0 mr-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveCustomLayout(layout);
+                            setLandingLayout('custom');
+                            // Set to edit mode
+                            setIsEditMode(true); 
+                          }}
+                        >
+                          <Edit size={14} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteCustomLayout(layout.id);
+                          }}
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </div>
                     </DropdownMenuItem>
                   ))}
                 </>
@@ -109,11 +126,16 @@ const Navbar = () => {
               
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                onClick={() => setLandingLayout('custom')}
+                onClick={() => {
+                  setLandingLayout('custom');
+                  setIsEditMode(true);
+                  // Clear active custom layout to start fresh
+                  setActiveCustomLayout(null);
+                }}
                 className="flex items-center"
               >
-                <Edit size={16} className="mr-2" />
-                Create Custom Layout
+                <Plus size={16} className="mr-2" />
+                Create New Layout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -179,8 +201,8 @@ const Navbar = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Show indicator when in edit mode */}
-          {isEditMode && (landingLayout === 'custom' || window.location.pathname === '/product-view') && (
+          {/* Show indicator when in edit mode - ONLY for product view page */}
+          {isEditMode && window.location.pathname === '/product-view' && (
             <span className="bg-primary text-white px-2 py-1 rounded text-xs">
               Edit Mode
             </span>
