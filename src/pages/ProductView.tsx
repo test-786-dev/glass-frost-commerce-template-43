@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useStore, LayoutElement } from '../contexts/StoreContext';
 import { Button } from "@/components/ui/button";
-import { Plus, Move, Trash, Save, Grid2x2, LayoutList } from 'lucide-react';
+import { Plus, Move, Trash, Save, Edit } from 'lucide-react';
 import { getFeaturedProducts } from '@/data/products';
 import ProductGrid from '../components/ProductGrid';
 import { toast } from '@/components/ui/use-toast';
@@ -20,15 +20,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const ProductView = () => {
   const { productViewLayout, updateProductViewLayout, isEditMode, setIsEditMode } = useStore();
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [layoutName, setLayoutName] = useState('');
   const [newElementType, setNewElementType] = useState<LayoutElement['type']>('products');
   const [newElementContent, setNewElementContent] = useState('');
   const [newElementSize, setNewElementSize] = useState<LayoutElement['size']>('full');
   const [newElementBackground, setNewElementBackground] = useState('bg-transparent');
+  const [savedProductLayouts, setSavedProductLayouts] = useState<Array<{id: string, name: string, layout: LayoutElement[]}>>(() => {
+    const saved = localStorage.getItem('savedProductLayouts');
+    return saved ? JSON.parse(saved) : [];
+  });
   
   const products = getFeaturedProducts();
 
@@ -132,6 +146,57 @@ const ProductView = () => {
     setNewElementBackground('bg-transparent');
   };
 
+  const saveLayout = () => {
+    if (!layoutName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please provide a name for your layout",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newLayout = {
+      id: generateId(),
+      name: layoutName,
+      layout: [...productViewLayout]
+    };
+    
+    const updatedLayouts = [...savedProductLayouts, newLayout];
+    setSavedProductLayouts(updatedLayouts);
+    localStorage.setItem('savedProductLayouts', JSON.stringify(updatedLayouts));
+    
+    setLayoutName('');
+    setShowSaveDialog(false);
+    setIsEditMode(false);
+    
+    toast({
+      title: "Layout saved",
+      description: `"${layoutName}" has been saved to your layouts`,
+    });
+  };
+
+  const loadLayout = (layout: LayoutElement[]) => {
+    updateProductViewLayout(layout);
+    setIsEditMode(false);
+    
+    toast({
+      title: "Layout loaded",
+      description: "Selected layout has been loaded",
+    });
+  };
+
+  const deleteLayout = (id: string) => {
+    const updatedLayouts = savedProductLayouts.filter(layout => layout.id !== id);
+    setSavedProductLayouts(updatedLayouts);
+    localStorage.setItem('savedProductLayouts', JSON.stringify(updatedLayouts));
+    
+    toast({
+      title: "Layout deleted",
+      description: "Layout has been deleted",
+    });
+  };
+
   const renderElement = (element: LayoutElement) => {
     const sizeClasses = {
       small: 'max-w-md',
@@ -176,32 +241,65 @@ const ProductView = () => {
   };
 
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
     if (isEditMode) {
-      toast({
-        title: "Changes saved",
-        description: "Your product view layout has been saved",
-      });
+      setShowSaveDialog(true);
+    } else {
+      setIsEditMode(true);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in">
-      {/* Edit mode toggle */}
-      <div className="flex justify-end mb-6">
-        <Button
-          variant={isEditMode ? "default" : "outline"}
-          onClick={toggleEditMode}
-          className="mb-4"
-        >
-          {isEditMode ? (
-            <>
-              <Save size={18} className="mr-2" /> Save Layout
-            </>
-          ) : (
-            "Edit Layout"
-          )}
-        </Button>
+      {/* Layout management */}
+      <div className="flex justify-between items-center mb-6">
+        {savedProductLayouts.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Saved Layouts</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuLabel>Saved Product Layouts</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {savedProductLayouts.map((item) => (
+                <DropdownMenuItem
+                  key={item.id}
+                  className="flex justify-between items-center"
+                  onClick={() => loadLayout(item.layout)}
+                >
+                  <span>{item.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteLayout(item.id);
+                    }}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        <div className={`${savedProductLayouts.length === 0 ? 'ml-auto' : ''}`}>
+          <Button
+            variant={isEditMode ? "default" : "outline"}
+            onClick={toggleEditMode}
+          >
+            {isEditMode ? (
+              <>
+                <Save size={18} className="mr-2" /> Save Layout
+              </>
+            ) : (
+              <>
+                <Edit size={18} className="mr-2" /> Edit Layout
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Layout builder */}
@@ -340,6 +438,40 @@ const ProductView = () => {
             </Button>
             <Button type="button" onClick={addNewElement}>
               Add Element
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Save layout dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Your Layout</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="layout-name" className="text-right text-sm font-medium">Name</label>
+              <input
+                id="layout-name"
+                value={layoutName}
+                onChange={(e) => setLayoutName(e.target.value)}
+                className="col-span-3 flex h-10 rounded-md border border-input bg-background px-3 py-2"
+                placeholder="My Product Layout"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => {
+              setShowSaveDialog(false);
+              setIsEditMode(false);
+            }}>
+              Don't Save
+            </Button>
+            <Button type="button" onClick={saveLayout}>
+              Save Layout
             </Button>
           </DialogFooter>
         </DialogContent>

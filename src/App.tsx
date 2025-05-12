@@ -11,6 +11,7 @@ import Shop from "./pages/Shop";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import ProductView from "./pages/ProductView";
+import ThemeCustomizer from "./components/ThemeCustomizer";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/shop" element={<Shop />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/product-view" element={<ProductView />} />
+            <Route path="/theme-customizer" element={<ThemeCustomizer />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

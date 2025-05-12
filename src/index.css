@@ -34,6 +34,13 @@
     --ring: 222.2 84% 4.9%;
  
     --radius: 0.5rem;
+    
+    /* Custom theme variables */
+    --custom-primary: 263 75% 63%;
+    --custom-secondary: 288 97% 60%;
+    --custom-accent: 198 93% 48%;
+    --custom-background: 0 0% 100%;
+    --custom-text: 222 75% 15%;
   }
  
   .dark {
@@ -87,6 +94,27 @@
 
 .theme-twilight-glow {
   @apply bg-gradient-to-br from-indigo-900 to-purple-800 text-white;
+}
+
+/* Custom theme support */
+[class^="theme-custom-"] {
+  background-color: hsl(var(--custom-background));
+  color: hsl(var(--custom-text));
+}
+
+[class^="theme-custom-"] .btn-primary {
+  background-color: hsl(var(--custom-primary));
+  color: hsl(var(--custom-background));
+}
+
+[class^="theme-custom-"] .btn-secondary {
+  background-color: hsl(var(--custom-secondary));
+  color: hsl(var(--custom-background));
+}
+
+[class^="theme-custom-"] .btn-accent {
+  background-color: hsl(var(--custom-accent));
+  color: hsl(var(--custom-background));
 }
 
 /* Glass Effects */

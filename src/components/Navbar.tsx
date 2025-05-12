@@ -7,9 +7,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate } from 'lucide-react';
+import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate, Edit } from 'lucide-react';
 
 const Navbar = () => {
   const {
@@ -20,7 +22,10 @@ const Navbar = () => {
     productLayout,
     setProductLayout,
     cartItems,
-    isEditMode
+    isEditMode,
+    savedCustomLayouts,
+    setActiveCustomLayout,
+    deleteCustomLayout
   } = useStore();
 
   return (
@@ -55,6 +60,7 @@ const Navbar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48 glass-card">
+              <DropdownMenuLabel>Built-in Layouts</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => setLandingLayout('hero-centric')} 
                 className={landingLayout === 'hero-centric' ? 'bg-primary/20' : ''}>
                 Hero-Centric
@@ -71,10 +77,44 @@ const Navbar = () => {
                 className={landingLayout === 'story-driven' ? 'bg-primary/20' : ''}>
                 Story-Driven
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLandingLayout('custom')}
-                className={landingLayout === 'custom' ? 'bg-primary/20' : ''}>
-                <Plus size={16} className="mr-2" />
-                Custom Layout
+              
+              {savedCustomLayouts.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Custom Layouts</DropdownMenuLabel>
+                  {savedCustomLayouts.map(layout => (
+                    <DropdownMenuItem 
+                      key={layout.id} 
+                      className="flex justify-between items-center"
+                      onClick={() => {
+                        setActiveCustomLayout(layout);
+                        setLandingLayout('custom');
+                      }}
+                    >
+                      <span>{layout.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteCustomLayout(layout.id);
+                        }}
+                      >
+                        <Trash size={14} />
+                      </Button>
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
+              
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setLandingLayout('custom')}
+                className="flex items-center"
+              >
+                <Edit size={16} className="mr-2" />
+                Create Custom Layout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -117,6 +157,7 @@ const Navbar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48 glass-card">
+              <DropdownMenuLabel>Built-in Themes</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => setTheme('theme-light-frost')}
                 className={theme === 'theme-light-frost' ? 'bg-primary/20' : ''}>
                 Light Frost
@@ -128,6 +169,13 @@ const Navbar = () => {
               <DropdownMenuItem onClick={() => setTheme('theme-twilight-glow')}
                 className={theme === 'theme-twilight-glow' ? 'bg-primary/20' : ''}>
                 Twilight Glow
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/theme-customizer" className="flex items-center">
+                  <Plus size={16} className="mr-2" />
+                  Custom Themes
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
