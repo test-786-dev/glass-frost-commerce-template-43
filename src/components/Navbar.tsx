@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useStore } from '../contexts/StoreContext';
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,10 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate, Edit, Trash } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
 const Navbar = () => {
+  const location = useLocation();
   const {
     theme,
     setTheme,
@@ -28,6 +30,9 @@ const Navbar = () => {
     deleteCustomLayout,
     setIsEditMode
   } = useStore();
+
+  // Only show edit mode badge on product-view page
+  const shouldShowEditBadge = isEditMode && location.pathname === '/product-view';
 
   return (
     <nav className="sticky top-0 z-50 w-full glass-navbar px-4 py-3">
@@ -205,11 +210,11 @@ const Navbar = () => {
 
         {/* Cart and Mobile Menu */}
         <div className="flex items-center space-x-4">
-          {/* Edit mode badge positioned on the right */}
-          {isEditMode && (
-            <span className="bg-primary text-white px-2 py-1 rounded text-xs">
+          {/* Only show Edit mode badge on the product-view page */}
+          {shouldShowEditBadge && (
+            <Badge variant="default" className="animate-fade-in">
               Edit Mode
-            </span>
+            </Badge>
           )}
           
           <Link to="/checkout" className="relative">
