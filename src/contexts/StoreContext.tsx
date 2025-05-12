@@ -7,12 +7,14 @@ type ProductLayout = 'grid' | 'list' | 'masonry' | 'carousel';
 
 export interface LayoutElement {
   id: string;
-  type: 'hero' | 'products' | 'banner' | 'text' | 'image' | 'spacer';
+  type: 'hero' | 'products' | 'banner' | 'text' | 'image' | 'spacer' | 'grid' | 'marquee' | 'bento' | 'carousel';
   content?: string;
   imageUrl?: string;
   order: number;
   size?: 'small' | 'medium' | 'large' | 'full';
   background?: string;
+  items?: Array<{id: string, title?: string, imageUrl?: string, content?: string}>;
+  columns?: number;
 }
 
 interface StoreContextType {
@@ -30,6 +32,8 @@ interface StoreContextType {
   updateCustomLayout: (layout: LayoutElement[]) => void;
   isEditMode: boolean;
   setIsEditMode: (isEditing: boolean) => void;
+  productViewLayout: LayoutElement[];
+  updateProductViewLayout: (layout: LayoutElement[]) => void;
 }
 
 export interface Product {
@@ -52,6 +56,7 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartTotal, setCartTotal] = useState(0);
   const [customLayout, setCustomLayout] = useState<LayoutElement[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [productViewLayout, setProductViewLayout] = useState<LayoutElement[]>([]);
 
   // Load preferences from localStorage on initial render
   useEffect(() => {
@@ -60,12 +65,14 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     const savedProductLayout = localStorage.getItem('productLayout') as ProductLayout;
     const savedCart = localStorage.getItem('cartItems');
     const savedCustomLayout = localStorage.getItem('customLayout');
+    const savedProductViewLayout = localStorage.getItem('productViewLayout');
 
     if (savedTheme) setThemeState(savedTheme);
     if (savedLandingLayout) setLandingLayoutState(savedLandingLayout);
     if (savedProductLayout) setProductLayoutState(savedProductLayout);
     if (savedCart) setCartItems(JSON.parse(savedCart));
     if (savedCustomLayout) setCustomLayout(JSON.parse(savedCustomLayout));
+    if (savedProductViewLayout) setProductViewLayout(JSON.parse(savedProductViewLayout));
 
     // Apply the theme to the document
     document.body.className = savedTheme || theme;
@@ -100,6 +107,11 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('customLayout', JSON.stringify(newLayout));
   };
 
+  const updateProductViewLayout = (newLayout: LayoutElement[]) => {
+    setProductViewLayout(newLayout);
+    localStorage.setItem('productViewLayout', JSON.stringify(newLayout));
+  };
+
   const addToCart = (product: Product) => {
     setCartItems((prev) => [...prev, product]);
   };
@@ -124,7 +136,9 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
         customLayout,
         updateCustomLayout,
         isEditMode,
-        setIsEditMode
+        setIsEditMode,
+        productViewLayout,
+        updateProductViewLayout
       }}
     >
       {children}

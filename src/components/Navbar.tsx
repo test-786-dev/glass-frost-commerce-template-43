@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus } from 'lucide-react';
+import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate } from 'lucide-react';
 
 const Navbar = () => {
   const {
@@ -40,6 +40,10 @@ const Navbar = () => {
           <Link to="/shop" className="flex items-center space-x-1 hover:text-primary transition-colors">
             <ShoppingBag size={18} />
             <span>Shop</span>
+          </Link>
+          <Link to="/product-view" className="flex items-center space-x-1 hover:text-primary transition-colors">
+            <LayoutTemplate size={18} />
+            <span>Product View</span>
           </Link>
 
           {/* Landing Layout Dropdown */}
@@ -129,7 +133,7 @@ const Navbar = () => {
           </DropdownMenu>
 
           {/* Show indicator when in edit mode */}
-          {isEditMode && landingLayout === 'custom' && (
+          {isEditMode && (landingLayout === 'custom' || window.location.pathname === '/product-view') && (
             <span className="bg-primary text-white px-2 py-1 rounded text-xs">
               Edit Mode
             </span>

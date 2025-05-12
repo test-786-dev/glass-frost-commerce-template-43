@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useStore, LayoutElement } from '../../contexts/StoreContext';
 import { Button } from "@/components/ui/button";
-import { Plus, Move, Trash, Save } from 'lucide-react';
+import { Plus, Move, Trash, Save, Grid2x2, LayoutGrid, Carousel as CarouselIcon, Image, Type, Ban, SparkleIcon } from 'lucide-react';
 import { getFeaturedProducts } from '@/data/products';
 import ProductCard from '../ProductCard';
 import { toast } from '@/components/ui/use-toast';
@@ -19,6 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const CustomLayout = () => {
   const { customLayout, updateCustomLayout, isEditMode, setIsEditMode } = useStore();
@@ -29,6 +37,12 @@ const CustomLayout = () => {
   const [newElementImage, setNewElementImage] = useState('');
   const [newElementSize, setNewElementSize] = useState<LayoutElement['size']>('medium');
   const [newElementBackground, setNewElementBackground] = useState('bg-transparent');
+  const [newElementColumns, setNewElementColumns] = useState(3);
+  const [newElementItems, setNewElementItems] = useState<Array<{id: string, title: string, imageUrl: string, content: string}>>([]);
+  const [showItemDialog, setShowItemDialog] = useState(false);
+  const [currentItemTitle, setCurrentItemTitle] = useState('');
+  const [currentItemImage, setCurrentItemImage] = useState('');
+  const [currentItemContent, setCurrentItemContent] = useState('');
   
   const products = getFeaturedProducts().slice(0, 4);
 
@@ -88,6 +102,35 @@ const CustomLayout = () => {
     setDraggedItem(null);
   };
 
+  const addItemToElement = () => {
+    if (!currentItemTitle && !currentItemImage && !currentItemContent) {
+      toast({
+        title: "Empty item",
+        description: "Please add some content to your item",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newItem = {
+      id: generateId(),
+      title: currentItemTitle,
+      imageUrl: currentItemImage,
+      content: currentItemContent,
+    };
+    
+    setNewElementItems([...newElementItems, newItem]);
+    setCurrentItemTitle('');
+    setCurrentItemImage('');
+    setCurrentItemContent('');
+    setShowItemDialog(false);
+    
+    toast({
+      title: "Item added",
+      description: "Item has been added to your element",
+    });
+  };
+
   const addNewElement = () => {
     const newElement: LayoutElement = {
       id: generateId(),
@@ -102,6 +145,22 @@ const CustomLayout = () => {
 
     if (newElementType === 'image') {
       newElement.imageUrl = newElementImage;
+    }
+
+    if (['grid', 'bento', 'carousel', 'marquee'].includes(newElementType)) {
+      if (newElementItems.length === 0) {
+        toast({
+          title: "No items added",
+          description: `Please add at least one item to your ${newElementType} element`,
+          variant: "destructive"
+        });
+        return;
+      }
+      newElement.items = newElementItems;
+    }
+
+    if (newElementType === 'grid') {
+      newElement.columns = newElementColumns;
     }
 
     if (newElementBackground) {
@@ -136,6 +195,8 @@ const CustomLayout = () => {
     setNewElementImage('');
     setNewElementSize('medium');
     setNewElementBackground('bg-transparent');
+    setNewElementItems([]);
+    setNewElementColumns(3);
   };
 
   const renderElement = (element: LayoutElement) => {
@@ -192,6 +253,108 @@ const CustomLayout = () => {
         );
       case 'spacer':
         return <div className={`h-16 ${baseClasses}`}></div>;
+      case 'grid':
+        return (
+          <div className={`${baseClasses}`}>
+            <h2 className="text-2xl font-bold mb-6 text-center">Grid Layout</h2>
+            <div className={`grid grid-cols-1 md:grid-cols-${element.columns || 3} gap-6`}>
+              {element.items?.map((item) => (
+                <div key={item.id} className="glass p-4 rounded-lg">
+                  {item.imageUrl && (
+                    <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover rounded-md mb-4" />
+                  )}
+                  {item.title && <h3 className="text-lg font-medium mb-2">{item.title}</h3>}
+                  {item.content && <p className="text-sm text-muted-foreground">{item.content}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case 'bento':
+        return (
+          <div className={`${baseClasses}`}>
+            <h2 className="text-2xl font-bold mb-6 text-center">Bento Grid</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[200px] gap-4">
+              {element.items?.map((item, index) => {
+                // Create some variation in the grid layout
+                const spanClasses = [
+                  "md:col-span-2 md:row-span-2",
+                  "",
+                  "md:col-span-1 md:row-span-1",
+                  "md:col-span-1 md:row-span-2",
+                ][index % 4];
+                
+                return (
+                  <div 
+                    key={item.id} 
+                    className={`glass rounded-xl overflow-hidden relative hover:scale-[1.02] transition-transform ${spanClasses}`}
+                  >
+                    {item.imageUrl && (
+                      <img 
+                        src={item.imageUrl} 
+                        alt={item.title} 
+                        className="absolute inset-0 w-full h-full object-cover z-0" 
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/20 z-10"></div>
+                    <div className="relative z-20 p-4 h-full flex flex-col justify-end">
+                      {item.title && <h3 className="text-xl font-bold text-white">{item.title}</h3>}
+                      {item.content && <p className="text-white/80 mt-2">{item.content}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      case 'marquee':
+        return (
+          <div className={`${baseClasses} overflow-hidden`}>
+            <div className="flex gap-4 animate-marquee">
+              {element.items ? (
+                // Show the items twice to create infinite loop effect
+                [...element.items, ...element.items].map((item, index) => (
+                  <div key={item.id + index} className="flex-shrink-0 w-64">
+                    {item.imageUrl && (
+                      <img src={item.imageUrl} alt={item.title} className="w-full h-40 object-cover rounded-md mb-3" />
+                    )}
+                    {item.title && <h3 className="font-medium">{item.title}</h3>}
+                    {item.content && <p className="text-sm text-muted-foreground mt-1">{item.content}</p>}
+                  </div>
+                ))
+              ) : (
+                <p>Add items to your marquee</p>
+              )}
+            </div>
+          </div>
+        );
+      case 'carousel':
+        return (
+          <div className={`${baseClasses}`}>
+            <h2 className="text-2xl font-bold mb-6 text-center">Featured Carousel</h2>
+            <Carousel className="w-full">
+              <CarouselContent>
+                {element.items?.map((item) => (
+                  <CarouselItem key={item.id}>
+                    <div className="p-1">
+                      <div className="glass rounded-xl overflow-hidden">
+                        {item.imageUrl && (
+                          <img src={item.imageUrl} alt={item.title} className="w-full h-64 object-cover" />
+                        )}
+                        <div className="p-5">
+                          {item.title && <h3 className="text-xl font-medium mb-2">{item.title}</h3>}
+                          {item.content && <p className="text-muted-foreground">{item.content}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="ml-4" />
+              <CarouselNext className="mr-4" />
+            </Carousel>
+          </div>
+        );
       default:
         return null;
     }
@@ -304,6 +467,10 @@ const CustomLayout = () => {
                   <SelectItem value="products">Products Grid</SelectItem>
                   <SelectItem value="banner">Banner</SelectItem>
                   <SelectItem value="spacer">Spacer</SelectItem>
+                  <SelectItem value="grid">Grid Layout</SelectItem>
+                  <SelectItem value="bento">Bento Grid</SelectItem>
+                  <SelectItem value="marquee">Marquee Scroll</SelectItem>
+                  <SelectItem value="carousel">Carousel</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -328,6 +495,65 @@ const CustomLayout = () => {
                   placeholder="https://example.com/image.jpg"
                   className="col-span-3 flex h-10 rounded-md border border-input bg-background px-3 py-2"
                 />
+              </div>
+            )}
+
+            {newElementType === 'grid' && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label className="text-right text-sm font-medium">Columns</label>
+                <Select
+                  value={newElementColumns.toString()}
+                  onValueChange={(value) => setNewElementColumns(parseInt(value))}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select number of columns" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2">2 Columns</SelectItem>
+                    <SelectItem value="3">3 Columns</SelectItem>
+                    <SelectItem value="4">4 Columns</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {['grid', 'bento', 'carousel', 'marquee'].includes(newElementType) && (
+              <div className="grid grid-cols-4 items-start gap-4">
+                <label className="text-right text-sm font-medium mt-2">Items</label>
+                <div className="col-span-3">
+                  <div className="flex flex-col gap-2 mb-2">
+                    {newElementItems.length > 0 ? (
+                      newElementItems.map((item, index) => (
+                        <div key={item.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                          <span className="truncate max-w-[200px]">
+                            {item.title || item.imageUrl || item.content || `Item ${index + 1}`}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newItems = [...newElementItems];
+                              newItems.splice(index, 1);
+                              setNewElementItems(newItems);
+                            }}
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No items added yet</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowItemDialog(true)}
+                    className="w-full mt-2"
+                  >
+                    <Plus size={14} className="mr-2" /> Add Item
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -376,6 +602,56 @@ const CustomLayout = () => {
             </Button>
             <Button type="button" onClick={addNewElement}>
               Add Element
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add new item dialog */}
+      <Dialog open={showItemDialog} onOpenChange={setShowItemDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Item</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right text-sm font-medium">Title</label>
+              <input
+                value={currentItemTitle}
+                onChange={(e) => setCurrentItemTitle(e.target.value)}
+                className="col-span-3 flex h-10 rounded-md border border-input bg-background px-3 py-2"
+                placeholder="Item title"
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right text-sm font-medium">Image URL</label>
+              <input
+                value={currentItemImage}
+                onChange={(e) => setCurrentItemImage(e.target.value)}
+                className="col-span-3 flex h-10 rounded-md border border-input bg-background px-3 py-2"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right text-sm font-medium">Content</label>
+              <input
+                value={currentItemContent}
+                onChange={(e) => setCurrentItemContent(e.target.value)}
+                className="col-span-3 flex h-10 rounded-md border border-input bg-background px-3 py-2"
+                placeholder="Item description or content"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setShowItemDialog(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={addItemToElement}>
+              Add Item
             </Button>
           </DialogFooter>
         </DialogContent>
