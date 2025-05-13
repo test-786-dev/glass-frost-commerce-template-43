@@ -3,12 +3,14 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import { products, getProductsByCategory } from '@/data/products';
+import { getAllProducts } from '@/data/products';
 import ProductCard from '../ProductCard';
 
 const ProductShowcaseLayout = () => {
-  const electronicProducts = getProductsByCategory('Electronics');
-  const homeDecorProducts = getProductsByCategory('Home Decor');
+  const allProducts = getAllProducts();
+  // Filter products by category, assuming we've added categories to the products
+  const electronicProducts = allProducts.filter(p => p.category === 'Electronics' || p.category === 'Eyewear').slice(0, 4);
+  const homeDecorProducts = allProducts.filter(p => p.category === 'Luxury' || p.category === 'Sports').slice(0, 4);
 
   return (
     <div className="animate-fade-in">
@@ -43,7 +45,7 @@ const ProductShowcaseLayout = () => {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {electronicProducts.slice(0, 4).map((product) => (
+          {electronicProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -82,7 +84,7 @@ const ProductShowcaseLayout = () => {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {homeDecorProducts.slice(0, 4).map((product) => (
+          {homeDecorProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

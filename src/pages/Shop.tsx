@@ -1,17 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { products } from '@/data/products';
+import { products, Product } from '@/data/products';
 import ProductGrid from '@/components/ProductGrid';
 import { Search, Filter, XCircle } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
 
 const Shop = () => {
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -20,7 +20,9 @@ const Shop = () => {
   const { productLayout } = useStore();
   
   // Get unique categories
-  const categories = Array.from(new Set(products.map(p => p.category)));
+  const categories = Array.from(
+    new Set(products.filter(p => p.category).map(p => p.category as string))
+  );
   
   // Handle category toggle
   const toggleCategory = (category: string) => {
@@ -34,7 +36,7 @@ const Shop = () => {
   };
   
   // Filter products based on search, price, and categories
-  React.useEffect(() => {
+  useEffect(() => {
     let result = products;
     
     // Filter by search query
@@ -53,7 +55,7 @@ const Shop = () => {
     // Filter by categories
     if (selectedCategories.length > 0) {
       result = result.filter(product => 
-        selectedCategories.includes(product.category)
+        product.category && selectedCategories.includes(product.category)
       );
     }
     
@@ -126,7 +128,7 @@ const Shop = () => {
               <div>
                 <h4 className="font-medium mb-4">Categories</h4>
                 <div className="space-y-2">
-                  {categories.map(category => (
+                  {categories.map((category) => (
                     <div key={category} className="flex items-center">
                       <Checkbox 
                         id={category}
@@ -177,7 +179,7 @@ const Shop = () => {
                   <div>
                     <h4 className="font-medium mb-4">Categories</h4>
                     <div className="space-y-2">
-                      {categories.map(category => (
+                      {categories.map((category) => (
                         <div key={category} className="flex items-center">
                           <Checkbox 
                             id={`mobile-${category}`}

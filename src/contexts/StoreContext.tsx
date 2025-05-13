@@ -1,5 +1,40 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product } from '../data/products';
+import { getAllProducts } from '../data/products';
+
+// Export the Product interface so it can be used elsewhere
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  rating: number;
+  reviews: number;
+  quantity?: number;
+  category?: string;
+}
+
+// Add the CustomTheme interface
+export interface CustomTheme {
+  id: string;
+  name: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+  createdAt: string;
+}
+
+// Add the LayoutElement interface
+export interface LayoutElement {
+  id: string;
+  type: 'hero' | 'text' | 'products' | 'banner';
+  order: number;
+  size: 'small' | 'medium' | 'large' | 'full';
+  content?: string;
+  background?: string;
+}
 
 // Add wishlistItems to the context state
 interface StoreContextType {
@@ -24,6 +59,17 @@ interface StoreContextType {
   addToWishlist: (product: Product) => void;
   removeFromWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  // Add new properties
+  customThemes: CustomTheme[];
+  addCustomTheme: (theme: CustomTheme) => void;
+  deleteCustomTheme: (themeId: string) => void;
+  setActiveTheme: (theme: CustomTheme) => void;
+  productViewLayout: LayoutElement[];
+  updateProductViewLayout: (layout: LayoutElement[]) => void;
+  cartTotal: number;
+  customLayout?: any;
+  updateCustomLayout?: (layout: any) => void;
+  addCustomLayout?: (layout: any) => void;
 }
 
 export const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -37,9 +83,14 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [savedCustomLayouts, setSavedCustomLayouts] = useState<any[]>([]);
   const [activeCustomLayout, setActiveCustomLayout] = useState<any>(null);
+  const [customLayout, setCustomLayout] = useState<any>(null);
   
   // Add wishlist state
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
+
+  // Add new states
+  const [customThemes, setCustomThemes] = useState<CustomTheme[]>([]);
+  const [productViewLayout, setProductViewLayout] = useState<LayoutElement[]>([]);
 
   // Load saved states from localStorage
   useEffect(() => {
@@ -50,6 +101,8 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
       const savedCartItems = localStorage.getItem('glassshop-cart-items');
       const savedCustomLayouts = localStorage.getItem('glassshop-custom-layouts');
       const savedWishlistItems = localStorage.getItem('glassshop-wishlist-items');
+      const savedCustomThemes = localStorage.getItem('glassshop-custom-themes');
+      const savedProductViewLayout = localStorage.getItem('glassshop-product-view-layout');
 
       if (savedTheme) setTheme(savedTheme);
       if (savedLandingLayout) setLandingLayout(savedLandingLayout);
@@ -57,6 +110,8 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
       if (savedCartItems) setCartItems(JSON.parse(savedCartItems));
       if (savedCustomLayouts) setSavedCustomLayouts(JSON.parse(savedCustomLayouts));
       if (savedWishlistItems) setWishlistItems(JSON.parse(savedWishlistItems));
+      if (savedCustomThemes) setCustomThemes(JSON.parse(savedCustomThemes));
+      if (savedProductViewLayout) setProductViewLayout(JSON.parse(savedProductViewLayout));
     } catch (error) {
       console.error('Error loading from localStorage', error);
     }
@@ -71,10 +126,12 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem('glassshop-cart-items', JSON.stringify(cartItems));
       localStorage.setItem('glassshop-custom-layouts', JSON.stringify(savedCustomLayouts));
       localStorage.setItem('glassshop-wishlist-items', JSON.stringify(wishlistItems));
+      localStorage.setItem('glassshop-custom-themes', JSON.stringify(customThemes));
+      localStorage.setItem('glassshop-product-view-layout', JSON.stringify(productViewLayout));
     } catch (error) {
       console.error('Error saving to localStorage', error);
     }
-  }, [theme, landingLayout, productLayout, cartItems, savedCustomLayouts, wishlistItems]);
+  }, [theme, landingLayout, productLayout, cartItems, savedCustomLayouts, wishlistItems, customThemes, productViewLayout]);
 
   // Keep existing cart functions
   const addToCart = (product: Product) => {
@@ -130,6 +187,35 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     return wishlistItems.some(item => item.id === productId);
   };
 
+  // Add new functions
+  const addCustomTheme = (theme: CustomTheme) => {
+    setCustomThemes(prev => [...prev, theme]);
+  };
+
+  const deleteCustomTheme = (themeId: string) => {
+    setCustomThemes(prev => prev.filter(theme => theme.id !== themeId));
+  };
+
+  const setActiveTheme = (theme: CustomTheme) => {
+    // Implementation would depend on how you want to use active themes
+    console.log("Setting active theme:", theme);
+    // For example, could update the theme state
+    setTheme(theme.name);
+  };
+
+  const updateProductViewLayout = (layout: LayoutElement[]) => {
+    setProductViewLayout(layout);
+  };
+
+  const updateCustomLayout = (layout: any) => {
+    setCustomLayout(layout);
+  };
+
+  const addCustomLayout = (layout: any) => {
+    // Implementation would depend on how you want to add custom layouts
+    console.log("Adding custom layout:", layout);
+  };
+
   // Keep existing layout functions
   const saveCustomLayout = (layout: any) => {
     const updatedLayout = {
@@ -160,6 +246,11 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Calculate cart total
+  const cartTotal = cartItems.reduce((total, item) => {
+    return total + (item.price * (item.quantity || 1));
+  }, 0);
+
   const value = {
     theme,
     setTheme,
@@ -181,7 +272,18 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     wishlistItems,
     addToWishlist,
     removeFromWishlist,
-    isInWishlist
+    isInWishlist,
+    // Add new properties to the value object
+    customThemes,
+    addCustomTheme,
+    deleteCustomTheme,
+    setActiveTheme,
+    productViewLayout,
+    updateProductViewLayout,
+    cartTotal,
+    customLayout,
+    updateCustomLayout,
+    addCustomLayout
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

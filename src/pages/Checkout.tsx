@@ -15,7 +15,7 @@ import { useStore } from '@/contexts/StoreContext';
 import { Check } from 'lucide-react';
 
 const Checkout = () => {
-  const { cartItems, cartTotal, removeFromCart } = useStore();
+  const { cartItems, removeFromCart } = useStore();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
@@ -30,7 +30,7 @@ const Checkout = () => {
   };
 
   // Calculate order summary
-  const subtotal = cartTotal;
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
   const shipping = 10.00;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;

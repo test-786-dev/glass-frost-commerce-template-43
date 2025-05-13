@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -6,9 +7,11 @@ export interface Product {
   image: string;
   rating: number;
   reviews: number;
+  category?: string;
 }
 
-export const getAllProducts = (): Product[] => [
+// Export the products array
+export const products = [
   {
     id: "1",
     name: "Classic Round Glasses",
@@ -17,6 +20,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1574854894785-c64dc99f7599?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.5,
     reviews: 42,
+    category: "Eyewear"
   },
   {
     id: "2",
@@ -26,6 +30,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1616499494472-68549c3991ca?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.2,
     reviews: 35,
+    category: "Eyewear"
   },
   {
     id: "3",
@@ -35,6 +40,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1534438327276-14e530d3cae6?q=80&w=2094&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.7,
     reviews: 50,
+    category: "Eyewear"
   },
   {
     id: "4",
@@ -44,6 +50,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1585314064435-9392c0146924?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.0,
     reviews: 28,
+    category: "Eyewear"
   },
   {
     id: "5",
@@ -53,6 +60,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1621905249798-88756495c103?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.3,
     reviews: 38,
+    category: "Eyewear"
   },
   {
     id: "6",
@@ -62,6 +70,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2099&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.6,
     reviews: 45,
+    category: "Electronics"
   },
   {
     id: "7",
@@ -71,6 +80,7 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1541736344-01f189194f13?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 3.9,
     reviews: 25,
+    category: "Sports"
   },
   {
     id: "8",
@@ -80,15 +90,20 @@ export const getAllProducts = (): Product[] => [
     image: "https://images.unsplash.com/photo-1585314064435-9392c0146924?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.8,
     reviews: 52,
+    category: "Luxury"
   },
 ];
 
+export const getAllProducts = (): Product[] => products;
+
 export const getFeaturedProducts = (): Product[] => {
-  const allProducts = getAllProducts();
-  return allProducts.slice(0, 4);
+  return products.slice(0, 4);
 };
 
-export const getProductById = (id: string) => {
-  const allProducts = getAllProducts();
-  return allProducts.find(product => product.id === id);
+export const getProductById = (id: string): Product | undefined => {
+  return products.find(product => product.id === id);
+};
+
+export const getProductsByCategory = (category: string): Product[] => {
+  return products.filter(product => product.category === category);
 };

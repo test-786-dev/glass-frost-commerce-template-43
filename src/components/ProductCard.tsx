@@ -7,12 +7,17 @@ import { useStore } from '../contexts/StoreContext';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-const ProductCard = ({ product }) => {
+interface ProductCardProps {
+  product: any;
+  layout?: string;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, layout = 'grid' }) => {
   const { addToCart, addToWishlist, isInWishlist } = useStore();
   
   const isWishlisted = isInWishlist?.(product.id);
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product);
@@ -22,7 +27,7 @@ const ProductCard = ({ product }) => {
     });
   };
 
-  const handleAddToWishlist = (e) => {
+  const handleAddToWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addToWishlist(product);
