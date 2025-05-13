@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAllProducts } from '../data/products';
-import { LayoutElement, CustomLayout, CustomTheme } from '../types/layout';
+import type { LayoutElement, CustomLayout, CustomTheme } from '../types/layout';
 
 // Export the Product interface so it can be used elsewhere
 export interface Product {
@@ -16,7 +17,7 @@ export interface Product {
 }
 
 // Re-export the types from layout.ts
-export { LayoutElement, CustomLayout, CustomTheme };
+export type { LayoutElement, CustomLayout, CustomTheme };
 
 // Add wishlistItems to the context state
 interface StoreContextType {
