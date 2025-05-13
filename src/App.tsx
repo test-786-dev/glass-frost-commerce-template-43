@@ -12,6 +12,8 @@ import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import ProductView from "./pages/ProductView";
 import ThemeCustomizer from "./components/ThemeCustomizer";
+import ProductDetails from "./pages/ProductDetails";
+import Wishlist from "./pages/Wishlist";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/product-view" element={<ProductView />} />
             <Route path="/theme-customizer" element={<ThemeCustomizer />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

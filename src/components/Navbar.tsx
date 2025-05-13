@@ -11,8 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate, Edit, Trash } from 'lucide-react';
+import { ShoppingCart, Menu, ChevronDown, Home, ShoppingBag, Palette, Plus, LayoutTemplate, Edit, Trash, Heart } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { SearchBar } from './SearchBar';
 
 const Navbar = () => {
   const location = useLocation();
@@ -24,6 +25,7 @@ const Navbar = () => {
     productLayout,
     setProductLayout,
     cartItems,
+    wishlistItems,
     isEditMode,
     savedCustomLayouts,
     setActiveCustomLayout,
@@ -41,6 +43,11 @@ const Navbar = () => {
         <Link to="/" className="text-2xl font-bold">
           GlassShop
         </Link>
+
+        {/* Search Bar - visible on all screen sizes */}
+        <div className="hidden md:flex items-center mx-4 flex-1 max-w-md">
+          <SearchBar />
+        </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
@@ -208,7 +215,7 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Cart and Mobile Menu */}
+        {/* Cart, Wishlist and Mobile Menu */}
         <div className="flex items-center space-x-4">
           {/* Only show Edit mode badge on the product-view page */}
           {shouldShowEditBadge && (
@@ -217,6 +224,17 @@ const Navbar = () => {
             </Badge>
           )}
           
+          {/* Wishlist Icon */}
+          <Link to="/wishlist" className="relative">
+            <Heart size={24} />
+            {wishlistItems?.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                {wishlistItems.length}
+              </span>
+            )}
+          </Link>
+          
+          {/* Cart Icon */}
           <Link to="/checkout" className="relative">
             <ShoppingCart size={24} />
             {cartItems.length > 0 && (
@@ -225,6 +243,11 @@ const Navbar = () => {
               </span>
             )}
           </Link>
+
+          {/* Mobile Search - only visible on mobile */}
+          <div className="md:hidden">
+            <SearchBar />
+          </div>
 
           {/* Mobile Menu Button */}
           <Button variant="ghost" className="md:hidden">
