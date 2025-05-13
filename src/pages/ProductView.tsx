@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { useStore, LayoutElement } from '../contexts/StoreContext';
+import { useStore } from '../contexts/StoreContext';
+import type { LayoutElement } from '../types/layout';
 import { Button } from "@/components/ui/button";
 import { Plus, Move, Trash, Save, Edit } from 'lucide-react';
 import { getFeaturedProducts } from '@/data/products';
@@ -67,6 +68,11 @@ const ProductView = () => {
       ]);
     }
   }, []);
+
+  // Add a console log to debug the productViewLayout changes
+  React.useEffect(() => {
+    console.log("ProductViewLayout updated:", productViewLayout);
+  }, [productViewLayout]);
 
   const generateId = () => {
     return Math.random().toString(36).substring(2, 9);
@@ -177,7 +183,8 @@ const ProductView = () => {
   };
 
   const loadLayout = (layout: LayoutElement[]) => {
-    updateProductViewLayout(layout);
+    console.log("Loading layout:", layout);
+    updateProductViewLayout([...layout]); // Create a new array to ensure state update
     setIsEditMode(false);
     
     toast({
@@ -257,7 +264,7 @@ const ProductView = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Saved Layouts</Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuContent align="start" className="w-56 bg-popover">
               <DropdownMenuLabel>Saved Product Layouts</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {savedProductLayouts.map((item) => (
