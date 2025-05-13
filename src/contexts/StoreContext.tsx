@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAllProducts } from '../data/products';
+import { LayoutElement, CustomLayout, CustomTheme } from '../types/layout';
 
 // Export the Product interface so it can be used elsewhere
 export interface Product {
@@ -14,27 +15,8 @@ export interface Product {
   category?: string;
 }
 
-// Add the CustomTheme interface
-export interface CustomTheme {
-  id: string;
-  name: string;
-  primaryColor: string;
-  secondaryColor: string;
-  accentColor: string;
-  backgroundColor: string;
-  textColor: string;
-  createdAt: string;
-}
-
-// Add the LayoutElement interface
-export interface LayoutElement {
-  id: string;
-  type: 'hero' | 'text' | 'products' | 'banner';
-  order: number;
-  size: 'small' | 'medium' | 'large' | 'full';
-  content?: string;
-  background?: string;
-}
+// Re-export the types from layout.ts
+export { LayoutElement, CustomLayout, CustomTheme };
 
 // Add wishlistItems to the context state
 interface StoreContextType {
@@ -50,11 +32,11 @@ interface StoreContextType {
   updateCartItemQuantity: (productId: string, quantity: number) => void;
   isEditMode: boolean;
   setIsEditMode: (isEdit: boolean) => void;
-  savedCustomLayouts: any[];
-  setActiveCustomLayout: (layout: any) => void;
-  saveCustomLayout: (layout: any) => void;
+  savedCustomLayouts: CustomLayout[];
+  setActiveCustomLayout: (layout: CustomLayout) => void;
+  saveCustomLayout: (layout: CustomLayout) => void;
   deleteCustomLayout: (layoutId: string) => void;
-  activeCustomLayout: any;
+  activeCustomLayout: CustomLayout | null;
   wishlistItems: Product[];
   addToWishlist: (product: Product) => void;
   removeFromWishlist: (productId: string) => void;
@@ -67,9 +49,9 @@ interface StoreContextType {
   productViewLayout: LayoutElement[];
   updateProductViewLayout: (layout: LayoutElement[]) => void;
   cartTotal: number;
-  customLayout?: any;
-  updateCustomLayout?: (layout: any) => void;
-  addCustomLayout?: (layout: any) => void;
+  customLayout: LayoutElement[];
+  updateCustomLayout: (layout: LayoutElement[]) => void;
+  addCustomLayout: (name: string, layout: LayoutElement[]) => CustomLayout;
 }
 
 export const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -81,9 +63,9 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
   const [productLayout, setProductLayout] = useState('grid');
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [savedCustomLayouts, setSavedCustomLayouts] = useState<any[]>([]);
-  const [activeCustomLayout, setActiveCustomLayout] = useState<any>(null);
-  const [customLayout, setCustomLayout] = useState<any>(null);
+  const [savedCustomLayouts, setSavedCustomLayouts] = useState<CustomLayout[]>([]);
+  const [activeCustomLayout, setActiveCustomLayout] = useState<CustomLayout | null>(null);
+  const [customLayout, setCustomLayout] = useState<LayoutElement[]>([]);
   
   // Add wishlist state
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
@@ -207,17 +189,25 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
     setProductViewLayout(layout);
   };
 
-  const updateCustomLayout = (layout: any) => {
+  const updateCustomLayout = (layout: LayoutElement[]) => {
     setCustomLayout(layout);
   };
 
-  const addCustomLayout = (layout: any) => {
-    // Implementation would depend on how you want to add custom layouts
-    console.log("Adding custom layout:", layout);
+  const addCustomLayout = (name: string, layout: LayoutElement[]): CustomLayout => {
+    const newLayout: CustomLayout = {
+      id: Date.now().toString(),
+      name: name,
+      sections: layout,
+      elements: layout, // For compatibility
+      createdAt: new Date().toISOString()
+    };
+    
+    setSavedCustomLayouts(prev => [...prev, newLayout]);
+    return newLayout;
   };
 
   // Keep existing layout functions
-  const saveCustomLayout = (layout: any) => {
+  const saveCustomLayout = (layout: CustomLayout) => {
     const updatedLayout = {
       ...layout,
       id: layout.id || Date.now().toString(),

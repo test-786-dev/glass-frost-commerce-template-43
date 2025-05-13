@@ -38,9 +38,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, layout = 'grid' }) =
   };
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <Link to={`/product/${product.id}`}>
-        <div className="relative overflow-hidden aspect-square">
+    <Card className={`group overflow-hidden hover:shadow-lg transition-shadow duration-300 ${layout === 'list' ? 'flex flex-row' : ''}`}>
+      <Link to={`/product/${product.id}`} className={layout === 'list' ? 'flex-shrink-0 w-1/3' : ''}>
+        <div className={`relative overflow-hidden ${layout === 'list' ? 'h-full' : 'aspect-square'}`}>
           <img 
             src={product.image} 
             alt={product.name} 

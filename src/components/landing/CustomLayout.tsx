@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { useStore, LayoutElement, CustomLayout as CustomLayoutType } from '../../contexts/StoreContext';
+import { useStore } from '../../contexts/StoreContext';
+import { LayoutElement, CustomLayout as CustomLayoutType } from '../../types/layout';
 import { Button } from "@/components/ui/button";
 import { Plus, Move, Trash, Save, Edit, Grid2x2, LayoutGrid, Image, Type, Ban, SparkleIcon } from 'lucide-react';
 import { getFeaturedProducts } from '@/data/products';

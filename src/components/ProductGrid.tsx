@@ -6,9 +6,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ProductGridProps {
   products: Product[];
+  layout?: string;
 }
 
-const ProductGrid = ({ products }: ProductGridProps) => {
+const ProductGrid = ({ products, layout = 'grid' }: ProductGridProps) => {
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
 
   const nextSlide = () => {
@@ -28,10 +29,14 @@ const ProductGrid = ({ products }: ProductGridProps) => {
     return <div className="text-center py-6">No products available</div>;
   }
 
+  const gridLayoutClass = layout === 'list' 
+    ? "grid grid-cols-1 gap-6" 
+    : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6";
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
+    <div className={`${gridLayoutClass} animate-fade-in`}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} layout={layout} />
       ))}
     </div>
   );
